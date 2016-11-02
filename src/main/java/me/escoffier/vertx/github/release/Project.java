@@ -23,10 +23,6 @@ public class Project {
         if (node.get("org") != null) {
           org = node.get("org").asText();
         }
-        String branch = "master";
-        if (node.get("branch") != null) {
-          branch = node.get("branch").asText();
-        }
         Objects.requireNonNull(name);
         projects.add(new Project(name, org));
       }

@@ -1,6 +1,9 @@
 package me.escoffier.vertx.github.release;
 
+import me.escoffier.vertx.github.model.Issue;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -11,7 +14,7 @@ public class Report {
   public final Project project;
   public final List<Issue> issues = new ArrayList<>();
 
-  public Report(Project project, List<Issue> issues) {
+  public Report(Project project, Collection<Issue> issues) {
     this.project = project;
     this.issues.addAll(issues);
   }
@@ -21,7 +24,7 @@ public class Report {
     builder.append("## ").append(project.id());
     builder.append("\n\n");
     for (Issue issue : issues) {
-      builder.append("* ").append(issue.name).append(" - ").append(issue.url).append("\n");
+      builder.append("* ").append(issue.getFormattedTitle()).append(" - ").append(issue.getLink()).append("\n");
     }
     builder.append("\n");
     return builder.toString();

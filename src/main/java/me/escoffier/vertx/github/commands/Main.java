@@ -21,7 +21,8 @@ public class Main {
   static {
     COMMANDS = ImmutableMap.of(
         "stargazers", new StargazerCommand(),
-        "contributors", new ContributorCommand()
+        "contributors", new ContributorCommand(),
+        "release-notes", new ReleaseNoteCommand()
     );
   }
 
@@ -38,7 +39,7 @@ public class Main {
       commander.setAcceptUnknownOptions(true);
       commander.parse(args);
 
-      if (main.help) {
+      if (main.help  && main.command == null) {
         System.out.println("Available commands:");
         COMMANDS.forEach((name, cmd) -> System.out.println("\t" + name));
       } else {

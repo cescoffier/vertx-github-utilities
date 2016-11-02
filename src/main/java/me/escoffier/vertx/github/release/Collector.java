@@ -1,16 +1,12 @@
 package me.escoffier.vertx.github.release;
 
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
+import me.escoffier.vertx.github.model.Issue;
+import me.escoffier.vertx.github.model.PullRequest;
+import me.escoffier.vertx.github.services.IssueService;
+import me.escoffier.vertx.github.services.PullRequestService;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>
@@ -19,103 +15,68 @@ public class Collector {
 
   // TODO Outdated class, need to be redone....
 
-  public static List<Issue> retrieveIssues(Project project, String date, Collection<Integer> ignoredIssues) {
-    List<Issue> issues = new ArrayList<>();
-    OkHttpClient client = new OkHttpClient();
-    System.out.println("Retrieving issues for " + project.name());
-
-    int page = 0;
-    boolean done = false;
-
-    while (!done) {
-      Request request = new Request.Builder()
-          .url("https://api.github.com/repos/" + project.id() +
-              "/issues?state=closed&since=" + date + "&page=" + page + "&per_page=100&direction=asc&sort=created")
-          .addHeader("Authorization", "token " + "TODO")
-          .build();
-      System.out.println("\t" + request.url());
-      try {
-        Response response = client.newCall(request).execute();
-        String content = response.body().string();
-        JsonArray array = new JsonArray(content);
-        System.out.println("\tRetrieved " + array.size() + " issues");
-        if (array.isEmpty()) {
-          done = true;
-          continue;
-        } else {
-          page++;
-        }
-        List<Integer> marks = new ArrayList<>();
-        for (Object o : array) {
-          JsonObject json = (JsonObject) o;
-
-          if (json.getJsonObject("pull_request") != null) {
-            String pr = json.getJsonObject("pull_request").getString("url");
-            // Check the mergeable state
-            String resp = client.newCall(
-                new Request.Builder().url(pr)
-                    .addHeader("Authorization", "token " + "TODO")
-                    .build()
-            ).execute().body().string();
-
-            JsonObject prJSON = new JsonObject(resp);
-            if (prJSON.getString("mergeable_state") == null) {
-              System.err.println("\tNo mergeable state for " + json.getInteger("number") + " - " + pr);
-            } else {
-              if (!prJSON.getString("mergeable_state").equalsIgnoreCase("clean")
-                  && !prJSON.getString("mergeable_state")
-                  .equalsIgnoreCase("unknown")) {
-                System.out.println("\tRejecting " + json.getInteger("number") + " PR not in a clean state");
-                continue;
-              }
-            }
-          }
-
-          Issue issue = new Issue(json);
-          if (issue.isValid() && !ignoredIssues.contains(issue.number) && !alreadyContained(issue, issues)) {
-            // Check references
-            if (issue.isPR) {
-              Set<Integer> references = issue.getReferences();
-              System.out.println("\t Issue " + issue.number + " references " + references + " / " + marks);
-              boolean referenced = false;
-              for (int ref : references) {
-                if (marks.contains(ref)) {
-                  referenced = true;
-                }
-              }
-              if (!referenced) {
-                System.out.println("\tAdding issue " + issue.number);
-                issues.add(issue);
-                marks.add(issue.number);
-              } else {
-                System.out.println("\tIgnore " + issue.number + " as it's a PR referencing an issue");
-              }
-            } else {
-              issues.add(issue);
-              marks.add(issue.number);
-              System.out.println("\tAdding issue " + issue.number);
-            }
-          } else {
-            System.out.println("\tIgnore " + issue.number);
-          }
-        }
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-    }
-
-
-    // Filter out issues that have the same name as a PR
-    List<String> actualIssuesNames = issues.stream().filter(i -> !i.isPR).map(i -> i.name).collect(Collectors.toList());
-    return issues.stream().filter(i -> !(i.isPR && actualIssuesNames.contains(i.name))).collect(Collectors.toList());
-  }
-
-  private static boolean alreadyContained(Issue issue, List<Issue> issues) {
+  private static boolean alreadyContained(Issue issue, Collection<Issue> issues) {
     for (Issue i : issues) {
-      if (issue.number == i.number) {
+      if (issue.getNumber() == i.getNumber()) {
         return true;
       }
     }
     return false;
   }
+
+  private static boolean alreadyContained(int issue, Collection<Issue> issues) {
+    for (Issue i : issues) {
+      if (issue == i.getNumber()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+
+  public static Collection<Issue> retrieveIssues(Project project, String date, String token,
+                                                 Collection<Integer> ignoredIssues) {
+    System.out.println("Retrieving issues for " + project.name());
+    try {
+      Set<Issue> issues = IssueService.issues(project, token, new IssueService.Query().since(date).state("closed")
+          .ascending().sort("created"));
+
+      Map<Integer, PullRequest> pullRequests = new HashMap<>();
+      issues.stream().filter(Issue::isPR)
+          .map(issue -> issue.getPr().getUrl())
+          .map(url -> PullRequestService.retrieve(url, token))
+          .forEach(pr -> pullRequests.put(pr.getNumber(), pr));
+
+      Set<Issue> consolidatedListOfIssues = new LinkedHashSet<>();
+      issues.forEach(issue -> {
+        PullRequest pr = pullRequests.get(issue.getNumber());
+        if (pr == null) {
+          if (issue.shouldBePartOfReleaseNotes() && !ignoredIssues.contains(issue.getNumber())
+              && !alreadyContained(issue, consolidatedListOfIssues)) {
+            consolidatedListOfIssues.add(issue);
+          }
+        } else if (pr.isMerged() || "clean".equalsIgnoreCase(pr.getMergeableState())
+            && !alreadyContained(issue, consolidatedListOfIssues)) {
+
+          // Check whether it reference another issue
+          Set<Integer> references = pr.getReferences();
+          // TODO check whether or not an issue has a reference.
+
+
+          if (issue.shouldBePartOfReleaseNotes() && !ignoredIssues.contains(issue.getNumber())) {
+            consolidatedListOfIssues.add(issue);
+          }
+        } else {
+          System.out.println("Rejecting pull request " + issue.getNumber() + " - not merged or not in a meargeable " +
+              "state: " + pr.getMergeableState());
+        }
+      });
+
+      return consolidatedListOfIssues;
+
+    } catch (IOException e) {
+      throw new RuntimeException("Unable to retrieve issues for " + project.id(), e);
+    }
+  }
 }
+

@@ -1,24 +1,26 @@
-package me.escoffier.vertx.github.release;
+package me.escoffier.vertx.github.commands;
 
-import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.Files;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import me.escoffier.vertx.github.model.Issue;
+import me.escoffier.vertx.github.release.Collector;
+import me.escoffier.vertx.github.release.Project;
+import me.escoffier.vertx.github.release.Report;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Collect release notes.
+ * @author <a href="http://escoffier.me">Clement Escoffier</a>
  */
-public class Main {
+public class ReleaseNoteCommand extends AbstractCommand {
 
   @Parameter(names = {"--date", "-d"},
       required = true,
@@ -44,56 +46,37 @@ public class Main {
       description = "output file - release-notes.md by default")
   private File output = new File("release-notes.md");
 
-  @Parameter(names = {"--help", "-h"}, help = true, hidden = true)
-  private boolean help;
 
-  private static final Logger LOGGER = LogManager.getLogger("Vertx-Release-Notes");
-
-  public static void main(String[] args) {
-    Main main = new Main();
-    JCommander commander = null;
-    try {
-      commander = new JCommander(main, args);
-    } catch (Exception e) {
-      fatal("Unable to parse command line parameters", e);
-    }
-
-    if (main.help) {
-      commander.usage();
-    } else {
-      main.execute();
-    }
-  }
-
-  private void execute() {
+  @Override
+  public void run() {
     assert repositories.exists();
 
     Multimap<String, Integer> ignored = parseIgnoredIssues();
-    LOGGER.info(ignored.size() + " issues ignored");
-    LOGGER.debug("Ignored issues: " + ignored);
+    logger.info(ignored.size() + " issues ignored");
+    logger.debug("Ignored issues: " + ignored);
 
     List<Project> projects = Project.load(repositories);
-    LOGGER.info(projects.size() + " projects loaded");
-    LOGGER.debug("Parsed projects: " + projects.stream().map(Project::id).collect(Collectors.toList()));
+    logger.info(projects.size() + " projects loaded");
+    logger.debug("Parsed projects: " + projects.stream().map(Project::id).collect(Collectors.toList()));
 
     if (output.isFile()) {
-      LOGGER.info("The release-notes.md file already exists, deleting it...");
+      logger.info("The release-notes.md file already exists, deleting it...");
       boolean delete = output.delete();
-      LOGGER.debug("File deleted ? " + delete);
+      logger.debug("File deleted ? " + delete);
     }
 
     StringBuilder builder = new StringBuilder();
     builder.append("# vert.x ").append(version).append(" - Release Notes \n\n");
 
     projects.forEach(project -> {
-      List<Issue> issues = Collector.retrieveIssues(project, date, ignored.get(project.id()));
+      Collection<Issue> issues = Collector.retrieveIssues(project, date, token, ignored.get(project.id()));
       if (!issues.isEmpty()) {
         Report report = new Report(project, issues);
         builder.append(report.toMarkdown());
       }
     });
 
-    LOGGER.info("Writing release notes in " + output.getAbsolutePath());
+    logger.info("Writing release notes in " + output.getAbsolutePath());
     try {
       Files.write(builder.toString(), output, Charsets.UTF_8);
     } catch (IOException e) {
@@ -124,11 +107,6 @@ public class Main {
     });
 
     return ignore;
-  }
-
-  private static void fatal(String message, Exception cause) {
-    LOGGER.error(message, cause);
-    System.exit(-1);
   }
 
 }
