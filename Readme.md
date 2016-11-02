@@ -14,7 +14,7 @@ This command collects all stargazers from the listed repositories and does some 
 
 
 ```
-java -cp java -cp dist/vertx-github-utilities-1.0-SNAPSHOT.jar me.escoffier.vertx.github.commands.Main \
+java -jar -cp dist/vertx-github-utilities-1.0-SNAPSHOT.jar \
  --command stargazers \
  --repositories repositories.json \
  --token your_github_token
@@ -38,7 +38,7 @@ In addition, it generates 2 CSV files:
 This command collects all the contributors for the listed repositories and does some statistics.
 
 ```
-java -cp java -cp dist/vertx-github-utilities-1.0-SNAPSHOT.jar me.escoffier.vertx.github.commands.Main \
+java  -jar dist/vertx-github-utilities-1.0-SNAPSHOT.jar \
  --command contributors \
  --token your_github_token \
  --repositories repositories.json
@@ -55,6 +55,19 @@ It also generates 2 CSV files:
 
 * `scores.csv`: list the number of contribution per contributors (sorted)
 * `contributions.csv`: list the number of contributors per repository (sorted)
+
+## Retrieving issues and generating CSVs
+
+```
+java -jar target/vertx-github-utilities-1.0-SNAPSHOT.jar \
+    --command issues -r repositories.json  --token YOUR_TOKEN
+
+
+18:54:59.954 [main] INFO  me.escoffier.vertx.github.commands.IssueCommand - 56 projects loaded
+18:55:11.463 [main] INFO  me.escoffier.vertx.github.commands.IssueCommand - Total number of issues: 478
+```
+
+It also generates a CSV file (issues.csv) containing the number of open issues per repository.
 
 
 ## The repositories file
