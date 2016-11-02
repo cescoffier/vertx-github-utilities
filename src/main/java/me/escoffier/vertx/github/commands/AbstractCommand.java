@@ -17,6 +17,9 @@ public abstract class AbstractCommand {
   @Parameter(names = {"--help", "-h"}, help = true, hidden = true)
   private boolean help;
 
+  @Parameter(names = "--token", description = "The Github OAuth Token (https://github.com/settings/tokens)")
+  protected String token;
+
   @Parameter
   private List<String> parameters = new ArrayList<>();
 

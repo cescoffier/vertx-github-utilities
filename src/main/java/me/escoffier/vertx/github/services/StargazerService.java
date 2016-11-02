@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
  */
 public class StargazerService {
 
-  public static Set<Stargazer> stargazers(Project project) throws IOException {
+  public static Set<Stargazer> stargazers(Project project, String token) throws IOException {
     System.out.println("Retrieving stargazers for " + project.name());
-    GithubClient client = new GithubClient();
+    GithubClient client = new GithubClient(token);
     List<String> responses = client.request(project.organization(), project.name(), "stargazers");
 
     Set<Stargazer> stargazers = responses.stream()

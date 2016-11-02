@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
  */
 public class ContributorService {
 
-  public static Set<Contributor> contributors(Project project) throws IOException {
+  public static Set<Contributor> contributors(Project project, String token) throws IOException {
     System.out.println("Retrieving contributors for " + project.name());
-    GithubClient client = new GithubClient();
+    GithubClient client = new GithubClient(token);
     List<String> responses = client.request(project.organization(), project.name(), "contributors");
 
     Set<Contributor> contributors = responses.stream()

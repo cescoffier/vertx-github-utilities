@@ -76,11 +76,12 @@ public class StargazerCommand extends AbstractCommand {
   }
 
   private List<Stargazer> retrieveStargazers(List<Project> projects) {
+    assert token != null;
     List<Stargazer> stargazers = new ArrayList<>();
     List<String> users = new ArrayList<>();
     projects.forEach(project -> {
       try {
-        Set<Stargazer> result = StargazerService.stargazers(project);
+        Set<Stargazer> result = StargazerService.stargazers(project, token);
         stargazers.addAll(result);
         users.addAll(result.stream().map(s -> s.getUser().getLogin()).collect(Collectors.toList()));
 

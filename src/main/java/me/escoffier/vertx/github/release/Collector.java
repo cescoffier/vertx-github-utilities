@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
  */
 public class Collector {
 
+  // TODO Outdated class, need to be redone....
+
   public static List<Issue> retrieveIssues(Project project, String date, Collection<Integer> ignoredIssues) {
     List<Issue> issues = new ArrayList<>();
     OkHttpClient client = new OkHttpClient();
@@ -29,7 +31,7 @@ public class Collector {
       Request request = new Request.Builder()
           .url("https://api.github.com/repos/" + project.id() +
               "/issues?state=closed&since=" + date + "&page=" + page + "&per_page=100&direction=asc&sort=created")
-          .addHeader("Authorization", "token " + Token.TOKEN)
+          .addHeader("Authorization", "token " + "TODO")
           .build();
       System.out.println("\t" + request.url());
       try {
@@ -52,7 +54,7 @@ public class Collector {
             // Check the mergeable state
             String resp = client.newCall(
                 new Request.Builder().url(pr)
-                    .addHeader("Authorization", "token " + Token.TOKEN)
+                    .addHeader("Authorization", "token " + "TODO")
                     .build()
             ).execute().body().string();
 

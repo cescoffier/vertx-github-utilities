@@ -3,7 +3,6 @@ package me.escoffier.vertx.github.utils;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
-import me.escoffier.vertx.github.release.Token;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,7 +14,13 @@ import java.util.List;
 public class GithubClient {
 
   public static final String ROOT = "https://api.github.com/repos";
+
+  private final String token;
   private OkHttpClient client = new OkHttpClient();
+
+  public GithubClient(String token) {
+    this.token = token;
+  }
 
 
   public String request(String org, String repo, String suffix, int page) throws IOException {
@@ -32,9 +37,10 @@ public class GithubClient {
       url += "/" + suffix;
     }
 
+    assert token != null;
     Request request = new Request.Builder()
         .url(url + "?page=" + page)
-        .addHeader("Authorization", "token " + Token.TOKEN)
+        .addHeader("Authorization", "token " + token)
         .addHeader("Accept", "application/vnd.github.v3.star+json")
         .build();
 

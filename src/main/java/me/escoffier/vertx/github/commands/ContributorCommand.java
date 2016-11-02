@@ -31,6 +31,7 @@ public class ContributorCommand extends AbstractCommand {
   @Override
   public void run() {
     assert repositories.exists();
+    assert token != null;
 
     List<Project> projects = Project.load(repositories);
     logger.info(projects.size() + " projects loaded");
@@ -41,7 +42,7 @@ public class ContributorCommand extends AbstractCommand {
     List<String> users = new ArrayList<>();
     projects.forEach(project -> {
       try {
-        Set<Contributor> result = ContributorService.contributors(project);
+        Set<Contributor> result = ContributorService.contributors(project, token);
         contributors.addAll(result);
         users.addAll(result.stream().map(User::getLogin).collect(Collectors.toList()));
       } catch (IOException e) {
