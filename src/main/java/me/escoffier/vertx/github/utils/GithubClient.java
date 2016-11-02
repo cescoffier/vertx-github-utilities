@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public class GithubClient {
 
-  private static final String ROOT = "https://api.github.com/repos";
+  public static final String ROOT = "https://api.github.com/repos";
 
   private final String token;
   private OkHttpClient client = new OkHttpClient();

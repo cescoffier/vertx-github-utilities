@@ -22,7 +22,8 @@ public class Main {
     COMMANDS = ImmutableMap.of(
         "stargazers", new StargazerCommand(),
         "contributors", new ContributorCommand(),
-        "release-notes", new ReleaseNoteCommand()
+        "release-notes", new ReleaseNoteCommand(),
+        "issues", new IssueCommand()
     );
   }
 

@@ -7,6 +7,9 @@
     "org": "eclipse"
   },
   {
+    "repo" : "issues"
+  },
+  {
     "repo" : "vertx-hazelcast"
   },
   {
