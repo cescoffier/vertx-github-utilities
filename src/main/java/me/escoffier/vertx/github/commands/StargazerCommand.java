@@ -1,20 +1,14 @@
 package me.escoffier.vertx.github.commands;
 
-import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
+import com.google.common.collect.ImmutableList;
 import me.escoffier.vertx.github.model.Stargazer;
 import me.escoffier.vertx.github.release.Project;
 import me.escoffier.vertx.github.services.StargazerService;
-import me.escoffier.vertx.github.utils.Json;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import me.escoffier.vertx.github.utils.TableOfInt;
+import me.escoffier.vertx.github.utils.TableOfSet;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,24 +23,6 @@ public class StargazerCommand extends AbstractCommand {
       description = "The json file listing the repositories")
   private File repositories;
 
-  @Parameter(names = {"--stargazer-file", "-s"},
-      description = "file storing the retrieve stargazerFiles - stargazers.json")
-  private File stargazerFiles = new File("stargazers.json");
-
-  @Parameter(names = {"skip-retrieval"},
-      description = "whether or not it retrieves the stargazers from Github, if skipped, it uses the 'stargazer-file' as input")
-  private boolean skipRetrieval = false;
-
-  @Parameter(names = {"skip-analysis"},
-      description = "whether or not it runs the analysis")
-  private boolean skipAnalysis = false;
-
-  @Parameter(names = "--star-per-repository", description = "the CSV file in which the number of stars per repository is stored")
-  private File starPerRepositoryFile = new File("starPerRepository.csv");
-
-  @Parameter(names = "--star-evolution", description = "the CSV file in which the evolution of the number of stars is stored")
-  private File starEvolutionFile = new File("starEvolution.csv");
-
   public void run() {
     assert repositories.exists();
 
@@ -54,25 +30,67 @@ public class StargazerCommand extends AbstractCommand {
     logger.info(projects.size() + " projects loaded");
     logger.debug("Parsed projects: " + projects.stream().map(Project::id).collect(Collectors.toList()));
 
-    List<Stargazer> stargazers;
-    if (!skipRetrieval) {
-      stargazers = retrieveStargazers(projects);
-    } else {
-      assert stargazerFiles.exists();
-      stargazers = loadStargazers(stargazerFiles);
-    }
+    List<Stargazer> stargazers = retrieveStargazers(projects);
 
-    if (!skipAnalysis) {
-      try {
-        // Compute per repo
-        computeStarsPerRepo(stargazers);
-        // Compute per month
-        computeEvolution(stargazers);
-      } catch (Exception e) {
-        fatal("Unable to analyze stargazers", e);
+    List<Stargazer> sorted = new ArrayList<>(stargazers);
+    sorted.sort((s1, s2) -> {
+      Date date1 = s1.toDate();
+      Date date2 = s2.toDate();
+      return date1.compareTo(date2);
+    });
+    try {
+
+      // Build a table storing the set of stargazer acquired every month per repository
+      TableOfSet<String> acquiredStargazersPerMonthPerRepo = new TableOfSet<>(computeColumnNamesForStargazers(projects));
+      for (Stargazer stargazer : sorted) {
+        String key = key(stargazer);
+        acquiredStargazersPerMonthPerRepo.add(key, stargazer.getProject(), stargazer.getUser().getLogin());
       }
+      acquiredStargazersPerMonthPerRepo.fill(Collections.emptySet());
+
+      TableOfInt stargazersPerRepository = computeStargazerData(projects, acquiredStargazersPerMonthPerRepo).fill(0);
+      TableOfInt stargazersConsolidated = computeConsolidatedView(projects, acquiredStargazersPerMonthPerRepo).fill(0);
+
+      File raw = new File("stargazers.csv");
+      File consolidated = new File("stargazers-consolidated.csv");
+      logger.info("Writing stargazers per month per repo data to " + raw.getAbsolutePath());
+      stargazersPerRepository.toCSV(raw);
+      logger.info("Writing stargazers consolidated view to " + consolidated.getAbsolutePath());
+      stargazersConsolidated.toCSV(consolidated);
+    } catch (Exception e) {
+      fatal("Unable to retrieve / analyze / dump stargazers", e);
+    }
+  }
+
+  private TableOfInt computeConsolidatedView(List<Project> projects, TableOfSet<String> acquiredStargazersPerMonthPerRepo) {
+    TableOfInt table = new TableOfInt(ImmutableList.of(
+        "Month",
+        "Number of stars acquired",
+        "Number of stargazers acquired",
+        "Number of stars",
+        "Number of unique stargazers"));
+    int stars = 0;
+    Set<String> stargazers = new HashSet<>();
+    for (String date : acquiredStargazersPerMonthPerRepo.getTable().keySet()) {
+      Set<String> acquired = new HashSet<>();
+      int acquiredCount = 0;
+      for (Project project : projects) {
+        String id = project.id();
+        Set<String> names = acquiredStargazersPerMonthPerRepo.get(date, id);
+        acquiredCount += names.size();
+        acquired.addAll(names);
+      }
+
+      stars += acquiredCount;
+      stargazers.addAll(acquired);
+
+      table.put(date, "Number of stars acquired", acquiredCount);
+      table.put(date, "Number of stargazers acquired", acquired.size());
+      table.put(date, "Number of stars", stars);
+      table.put(date, "Number of unique stargazers", stargazers.size());
     }
 
+    return table;
   }
 
   private List<Stargazer> retrieveStargazers(List<Project> projects) {
@@ -93,81 +111,50 @@ public class StargazerCommand extends AbstractCommand {
     logger.info("Number of stargazers: " + users.size());
     logger.info("Number of (unique) stargazers: " + new HashSet<>(users).size());
 
-    logger.info("Writing " + stargazers.size() + " objects into " + stargazerFiles.getAbsolutePath());
-    if (stargazerFiles.isFile()) {
-      stargazerFiles.delete();
-    }
-    try {
-      Files.write(Json.toJson(stargazers), stargazerFiles, Charsets.UTF_8);
-    } catch (IOException e) {
-      fatal("Unable to write the 'stargazer' files", e);
-    }
-
     return stargazers;
   }
 
-  private List<Stargazer> loadStargazers(File file) {
-    Stargazer[] array = Json.fromJson(file, Stargazer[].class);
-    return Arrays.asList(array);
-  }
+  private TableOfInt computeStargazerData(List<Project> projects, TableOfSet<String> acquiredStargazersPerMonthPerRepo) {
+    TableOfInt table = new TableOfInt(computeColumnNamesForRawData(projects));
 
-  private void computeEvolution(List<Stargazer> stargazers) throws Exception {
-    List<Stargazer> sorted = new ArrayList<>(stargazers);
-    sorted.sort((s1, s2) -> {
-      Date date1 = s1.toDate();
-      Date date2 = s2.toDate();
-      return date1.compareTo(date2);
-    });
+    for (Project project : projects) {
+      int stars = 0;
+      for (String date : acquiredStargazersPerMonthPerRepo.getTable().keySet()) {
+        Map<String, Set<String>> line = acquiredStargazersPerMonthPerRepo.getLine(date);
+        Set<String> acquired = line.get(project.id());
+        stars += acquired.size();
 
-    Map<String, Integer> globalStars = new LinkedHashMap<>();
-    Map<String, Integer> periodStart = new LinkedHashMap<>();
-
-    int global = 0;
-    for (Stargazer stargazer : sorted) {
-      global = global + 1;
-
-      Date date = stargazer.toDate();
-      Calendar instance = Calendar.getInstance();
-      instance.setTime(date);
-      String key = (instance.get(Calendar.MONTH) + 1) + "-" + instance.get(Calendar.YEAR);
-
-      globalStars.put(key, global);
-      Integer current = periodStart.get(key);
-      if (current == null) {
-        periodStart.put(key, 1);
-      } else {
-        periodStart.put(key, current + 1);
+        table.put(date, project.id() + " - Number of stargazers acquired", acquired.size());
+        table.put(date, project.id() + " - Total number of stargazers", stars);
       }
     }
 
-    CSVFormat format = CSVFormat.EXCEL.withHeader("date", "month", "total");
-    FileWriter writer = new FileWriter(starEvolutionFile);
-    CSVPrinter printer = new CSVPrinter(writer, format);
-
-    for (String key : globalStars.keySet()) {
-      printer.printRecord(key, periodStart.get(key), globalStars.get(key));
-    }
-
-    writer.close();
+    return table;
   }
 
-  private void computeStarsPerRepo(List<Stargazer> stargazers) throws IOException {
-    CSVFormat format = CSVFormat.EXCEL.withHeader("repository", "stars");
-    FileWriter writer = new FileWriter(starPerRepositoryFile);
-    CSVPrinter printer = new CSVPrinter(writer, format);
-
-    Map<String, Integer> starsPerRepo = new TreeMap<>();
-    for (Stargazer stargazer : stargazers) {
-      Integer count = starsPerRepo.getOrDefault(stargazer.getProject(), 0);
-      count = count + 1;
-      starsPerRepo.put(stargazer.getProject(), count);
+  private List<String> computeColumnNamesForRawData(List<Project> projects) {
+    List<String> columns = new ArrayList<>();
+    columns.add("Month");
+    for (Project project : projects) {
+      columns.add(project.id() + " - Number of stargazers acquired");
+      columns.add(project.id() + " - Total number of stargazers");
     }
+    return columns;
+  }
 
-    for (Map.Entry<String, Integer> entry : starsPerRepo.entrySet()) {
-      printer.printRecord(entry.getKey(), entry.getValue());
+  private List<String> computeColumnNamesForStargazers(List<Project> projects) {
+    List<String> columns = new ArrayList<>();
+    columns.add("date");
+    for (Project project : projects) {
+      columns.add(project.id());
     }
+    return columns;
+  }
 
-    writer.close();
-
+  private String key(Stargazer stargazer) {
+    Date date = stargazer.toDate();
+    Calendar instance = Calendar.getInstance();
+    instance.setTime(date);
+    return (instance.get(Calendar.MONTH) + 1) + "-" + instance.get(Calendar.YEAR);
   }
 }

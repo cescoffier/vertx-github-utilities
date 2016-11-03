@@ -87,14 +87,11 @@ public class IssueService {
     GithubClient client = new GithubClient(token);
     List<String> responses = client.request(project.organization(), project.name(), "issues", query.build());
 
-    Set<Issue> issues = responses.stream()
+    return responses.stream()
         .flatMap(response -> Json.fromJsonAsList(response, Issue.class).stream())
-        .map(issue -> issue.setProject(project.name()))
+        .map(issue -> issue.setProject(project.id()))
         .distinct()
         .collect(Collectors.toSet());
-
-    System.out.println(project.id() + " => " + issues.size());
-    return issues;
   }
 
 }

@@ -2,10 +2,9 @@ package me.escoffier.vertx.github.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -14,6 +13,8 @@ import java.util.stream.Collectors;
  * @author <a href="http://escoffier.me">Clement Escoffier</a>
  */
 public class Issue {
+
+  private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
 
   private String project;
 
@@ -214,7 +215,7 @@ public class Issue {
       int firstLine = body.indexOf('\n');
 
       int cut;
-      if (firstDot == -1  && firstLine == -1) {
+      if (firstDot == -1 && firstLine == -1) {
         cut = -1;
       } else if (firstDot == -1) {
         cut = firstLine;
@@ -259,8 +260,16 @@ public class Issue {
 
   public boolean shouldBePartOfReleaseNotes() {
     Set<String> labels = getLabels().stream().map(Label::getName).collect(Collectors.toSet());
-    return ! labels.contains("invalid")
-        && ! labels.contains("wontfix")
-        && ! labels.contains("duplicate");
+    return !labels.contains("invalid")
+        && !labels.contains("wontfix")
+        && !labels.contains("duplicate");
+  }
+
+  public Date toDate() {
+    try {
+      return format.parse(creationDate);
+    } catch (ParseException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

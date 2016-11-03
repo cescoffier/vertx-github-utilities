@@ -5,6 +5,7 @@ import com.beust.jcommander.Parameter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,11 +47,15 @@ public abstract class AbstractCommand {
     if (help) {
       commander.usage();
     } else {
-      run();
+      try {
+        run();
+      } catch (IOException e) {
+        fatal("Error while executing command", e);
+      }
     }
   }
 
-  public abstract void run();
+  public abstract void run() throws IOException;
 
   public static void fatal(Logger logger, String message, Exception cause) {
     logger.error(message, cause);
