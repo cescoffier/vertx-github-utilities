@@ -259,7 +259,7 @@ public class Issue {
   }
 
   public boolean shouldBePartOfReleaseNotes() {
-    Set<String> labels = getLabels().stream().map(Label::getName).collect(Collectors.toSet());
+    Set<String> labels = getLabels().stream().map(Label::getName).map(String::toLowerCase).collect(Collectors.toSet());
     return !labels.contains("invalid")
         && !labels.contains("wontfix")
         && !labels.contains("duplicate");

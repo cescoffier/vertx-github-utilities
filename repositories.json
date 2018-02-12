@@ -1,175 +1,247 @@
-[
-  {
-    "repo": "vert.x",
-    "dir" : "vertx-core",
-    "url": "git@github.com:eclipse/vert.x.git",
-    "branch": "master",
-    "org": "eclipse"
-  },
-  {
-    "repo" : "issues"
-  },
-  {
-    "repo" : "vertx-hazelcast"
-  },
-  {
-    "repo" : "vertx-lang-groovy"
-  },
-  {
-    "repo" : "vertx-lang-ruby"
-  },
-  {
-    "repo" : "vertx-lang-js"
-  },
-  {
-    "repo" : "vertx-lang-ceylon"
-  },
-  {
-    "repo" : "vertx-unit"
-  },
-  {
-    "repo": "vertx-dropwizard-metrics"
-  },
-  {
-    "repo": "vertx-hawkular-metrics"
-  },
-  {
-    "repo": "vertx-rx"
-  },
-  {
-    "repo": "vertx-reactive-streams"
-  },
-  {
-    "repo": "vertx-shell"
-  },
-  {
-    "repo": "vertx-sync"
-  },
-  {
-    "repo": "vertx-service-factory"
-  },
-  {
-    "repo": "vertx-maven-service-factory"
-  },
-  {
-    "repo": "vertx-http-service-factory"
-  },
-  {
-    "repo": "vertx-service-proxy"
-  },
-  {
-    "repo": "vertx-auth"
-  },
-  {
-    "repo": "vertx-sql-common"
-  },
-  {
-    "repo": "vertx-jdbc-client"
-  },
-  {
-    "repo": "vertx-embedded-mongo-db"
-  },
-  {
-    "repo": "vertx-mongo-client"
-  },
-  {
-    "repo": "vertx-redis-client"
-  },
-  {
-    "repo": "vertx-stomp"
-  },
-  {
-    "repo": "vertx-jca"
-  },
-  {
-    "repo": "vertx-mail-client"
-  },
-  {
-    "repo": "vertx-web"
-  },
-  {
-    "repo": "vertx-stack"
-  },
-  {
-    "repo": "vertx-tcp-eventbus-bridge"
-  },
-  {
-    "repo": "vertx-bridge-common"
-  },
-  {
-    "repo": "vertx-camel-bridge"
-  },
-  {
-    "repo": "vertx-ignite"
-  },
-  {
-    "repo": "vertx-jgroups"
-  },
-  {
-    "repo": "vertx-mysql-postgresql-client"
-  },
-  {
-    "repo": "vertx-proton"
-  },
-  {
-    "repo": "vertx-rabbitmq-client"
-  },
-  {
-    "repo": "vertx-amqp-bridge"
-  },
-  {
-    "repo": "vertx-openshift-s2i"
-  },
-  {
-    "repo": "vertx-circuit-breaker"
-  },
-  {
-    "repo": "vertx-service-discovery"
-  },
-  {
-    "repo": "vertx-docgen"
-  },
-  {
-    "repo": "vertx-web-site"
-  },
-  {
-    "repo": "vertx-lang-scala"
-  },
-  {
-    "repo": "vertx-codegen"
-  },
-  {
-    "repo": "vertx-codetrans"
-  },
-  {
-    "repo": "vertx-zookeeper"
-  },
-  {
-    "repo": "vertx-examples"
-  },
-  {
-    "repo": "vertx-bus-bower"
-  },
-  {
-    "repo": "vertx-dependencies"
-  },
-  {
-    "repo": "vertx-ext-parent"
-  },
-  {
-    "repo": "vertx-parent"
-  },
-  {
-    "repo": "vertx-infinispan",
-    "branch": "initial-work"
-  },
-  {
-    "repo": "vertx-maven-starter"
-  },
-  {
-    "repo": "vertx-gradle-starter"
-  },
-  {
-    "repo": "vertx-cli-starter"
-  }
-]
+[ {
+  "repo" : "vert.x",
+  "org" : "eclipse"
+}, {
+  "repo" : "vertx-codegen",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-lang-js",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-lang-groovy",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-stack",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-maven-service-factory",
+  "org" : "vert-x3"
+}, {
+  "repo" : "prez-demos",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-service-factory",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-eb-wire-protocol",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-service-proxy",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-lang-scala",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-jca",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-docgen",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-lang-python",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-web",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-hazelcast",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-jdbc-client",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-rx",
+  "org" : "vert-x3"
+}, {
+  "repo" : "wiki",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-codetrans",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-parent",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-dropwizard-metrics",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-embedded-mongo-db",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-mongo-client",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-reactive-streams",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-ext-parent",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-mysql-postgresql-client",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-redis-client",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-auth",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-component-discovery",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-dependencies",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-web-site",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-rabbitmq-client",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-lang-ruby",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-unit",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-jgroups",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-sql-common",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-amqp-service",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-mail-client",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-examples",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vert-x3.github.io",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-zookeeper",
+  "org" : "vert-x3"
+}, {
+  "repo" : "issues",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-http-service-factory",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-openshift-diy-quickstart",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-openshift-cartridge",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-sync",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-awesome",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-perf",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-lang-ceylon",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-shell",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-bus-bower",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-tcp-eventbus-bridge",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-stomp",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-proton",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-amqp-bridge",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-hawkular-metrics",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-bridge-common",
+  "org" : "vert-x3"
+}, {
+  "repo" : "eclipse-proposal-wip",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-camel-bridge",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-ignite",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-openshift-s2i",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-service-discovery",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-circuit-breaker",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-consul-client",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-mqtt-server",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-infinispan",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-maven-starter",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-gradle-starter",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-cli-starter",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-lang-kotlin",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-kafka-client",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-config",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-grpc-java-compiler",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-grpc",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-sbt-starter",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-eventbus-bridge-clients",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-health-check",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-scala.g8",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-mqtt-client",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-cookbook",
+  "org" : "vert-x3"
+}, {
+  "repo" : "vertx-guide-for-java-devs",
+  "org" : "vert-x3"
+} ]

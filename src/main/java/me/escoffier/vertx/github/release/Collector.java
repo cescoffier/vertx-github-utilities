@@ -39,7 +39,7 @@ public class Collector {
     System.out.println("Retrieving issues for " + project.name());
     try {
       Set<Issue> issues = IssueService.issues(project, token, new IssueService.Query().since(date).state("closed")
-          .ascending().sort("created"));
+            .ascending().sort("created"));
 
       Map<Integer, PullRequest> pullRequests = new HashMap<>();
       issues.stream().filter(Issue::isPR)

@@ -3,6 +3,7 @@ package me.escoffier.vertx.github.release;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.vertx.core.json.JsonObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,5 +67,14 @@ public class Project {
 
   public String id() {
     return organization + "/" + name;
+  }
+
+  public JsonObject toJson() {
+    JsonObject object = new JsonObject();
+    object.put("repo", name);
+    if (organization != null) {
+      object.put("org", organization);
+    }
+    return object;
   }
 }

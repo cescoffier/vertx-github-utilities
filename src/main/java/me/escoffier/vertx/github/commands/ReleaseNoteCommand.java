@@ -24,7 +24,7 @@ public class ReleaseNoteCommand extends AbstractCommand {
 
   @Parameter(names = {"--date", "-d"},
       required = true,
-      description = "The last release date such as '2016-07-12T23:00:00Z'")
+      description = "The last release date such as '2016-07-12T23:00:00Z' (YYYY-MM-DDTHH:MM:SSZ)")
   private String date;
 
   @Parameter(names = {"--version", "-v"},

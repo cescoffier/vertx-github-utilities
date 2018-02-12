@@ -23,7 +23,8 @@ public class Main {
         "stargazers", new StargazerCommand(),
         "contributors", new ContributorCommand(),
         "release-notes", new ReleaseNoteCommand(),
-        "issues", new IssuesCommand()
+        "issues", new IssuesCommand(),
+        "generate-repositories", new GenerateRepositories()
     );
   }
 
